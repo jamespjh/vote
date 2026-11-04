@@ -19,6 +19,12 @@
     setype: httpd_sys_rw_content_t
   become: true
 
+- name: Clear the votes and comments, if asked to with -e reset_votes=true
+  ansible.builtin.shell: rm -f /var/www/vote-data/vote.sqlite*
+  when: reset_votes | default(false) | bool
+  notify: Restart httpd
+  become: true
+
 - name: Remember that SELinux label across relabels
   community.general.sefcontext:
     target: '/var/www/vote-data(/.*)?'

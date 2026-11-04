@@ -82,3 +82,13 @@ def test_timeline_is_capped(db):
     r = vote.results(conn)
     assert len(r["timeline"]) == vote.TIMELINE_POINTS
     assert r["timeline"][-1][1:] == [r["yes"], r["no"]]
+
+
+def test_comments(db):
+    a, b = phone(db), phone(db)
+    assert call(db, "POST", "/api/comment", {"text": "  Great   talk  "}, a)[0] == "200 OK"
+    assert call(db, "POST", "/api/comment", {"text": "again"}, a)[0].startswith("429")
+    assert call(db, "POST", "/api/comment", {"text": "   "}, b)[0].startswith("400")
+    assert call(db, "POST", "/api/comment", {"text": "x" * 500}, b)[0] == "200 OK"
+    texts = [c["text"] for c in totals(db)["comments"]]
+    assert texts == ["Great talk", "x" * vote.COMMENT_LENGTH]

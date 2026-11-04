@@ -8,6 +8,7 @@ Routes are relative to wherever the app is mounted (``/vote`` in production):
     GET  /qrcode.js     vendored QR code generator
     GET  /api/me        this phone's current answer
     POST /api/vote      {"choice": "yes"|"no"}
+    POST /api/comment   {"text": "..."} shown on the results screen
     GET  /api/results   running totals and timeline
 """
 
@@ -24,6 +25,9 @@ QUESTION = "I liked James’s Talk"
 CHOICES = ("yes", "no")
 COOKIE = "vote_id"
 TIMELINE_POINTS = 120
+COMMENT_LENGTH = 140
+COMMENT_GAP = 10  # seconds between comments from one phone
+COMMENTS_SHOWN = 30
 
 _lock = threading.Lock()
 _connections = {}
@@ -42,6 +46,9 @@ def db(path):
             CREATE TABLE IF NOT EXISTS events (
                 id INTEGER PRIMARY KEY, ts REAL NOT NULL,
                 voter TEXT NOT NULL, choice TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS comments (
+                id INTEGER PRIMARY KEY, ts REAL NOT NULL,
+                voter TEXT NOT NULL, text TEXT NOT NULL);
             """
         )
         conn.commit()
@@ -68,6 +75,26 @@ def cast(conn, voter, choice, now=None):
         conn.commit()
 
 
+class TooSoon(Exception):
+    pass
+
+
+def comment(conn, voter, text, now=None):
+    if not isinstance(text, str):
+        raise ValueError(text)
+    text = " ".join(text.split())[:COMMENT_LENGTH]
+    if not text:
+        raise ValueError(text)
+    now = time.time() if now is None else now
+    with _lock:
+        last = conn.execute("SELECT MAX(ts) FROM comments WHERE voter=?", (voter,)).fetchone()[0]
+        if last is not None and now - last < COMMENT_GAP:
+            raise TooSoon()
+        conn.execute("INSERT INTO comments(ts, voter, text) VALUES(?,?,?)", (now, voter, text))
+        conn.commit()
+    return text
+
+
 def current(conn, voter):
     with _lock:
         row = conn.execute("SELECT choice FROM votes WHERE voter=?", (voter,)).fetchone()
@@ -78,6 +105,9 @@ def results(conn):
     with _lock:
         totals = dict(conn.execute("SELECT choice, COUNT(*) FROM votes GROUP BY choice"))
         events = conn.execute("SELECT ts, voter, choice FROM events ORDER BY id").fetchall()
+        recent = conn.execute(
+            "SELECT id, ts, text FROM comments ORDER BY id DESC LIMIT ?", (COMMENTS_SHOWN,)
+        ).fetchall()
     # Replay the events to get the running totals after each one.
     state, counts, timeline = {}, {c: 0 for c in CHOICES}, []
     for ts, voter, choice in events:
@@ -94,6 +124,7 @@ def results(conn):
         "yes": totals.get("yes", 0),
         "no": totals.get("no", 0),
         "timeline": timeline,
+        "comments": [{"id": i, "ts": round(ts, 1), "text": t} for i, ts, t in reversed(recent)],
         "now": round(time.time(), 1),
     }
 
@@ -148,4 +179,13 @@ def application(environ, start_response):
         except (ValueError, AttributeError):
             return as_json({"error": "choice must be yes or no"}, "400 Bad Request")
         return as_json({"choice": choice})
+    if method == "POST" and path == "/api/comment":
+        try:
+            length = min(int(environ.get("CONTENT_LENGTH") or 0), 4000)
+            text = comment(conn, voter, json.loads(environ["wsgi.input"].read(length) or b"{}").get("text"))
+        except TooSoon:
+            return as_json({"error": f"one comment every {COMMENT_GAP} seconds, please"}, "429 Too Many Requests")
+        except (ValueError, AttributeError):
+            return as_json({"error": "text must be a non-empty string"}, "400 Bad Request")
+        return as_json({"text": text})
     return as_json({"error": "not found"}, "404 Not Found")

@@ -32,10 +32,16 @@
   button:active { transform: scale(.97); }
   #yes { background: var(--yes); }
   #no { background: var(--no); color: #fff; }
-  body.voted button { opacity: .35; }
-  body.voted button.chosen { opacity: 1; border-color: #fff; box-shadow: 0 0 0 6px rgba(255,255,255,.15); }
-  body.voted button.chosen .tick { opacity: 1; }
+  body.voted .choices button { opacity: .35; }
+  body.voted .choices button.chosen { opacity: 1; border-color: #fff; box-shadow: 0 0 0 6px rgba(255,255,255,.15); }
+  body.voted .choices button.chosen .tick { opacity: 1; }
   button:focus-visible { outline: 4px solid #fff; outline-offset: 4px; }
+  form { display: flex; gap: 8px; margin-top: 24px; }
+  input { flex: 1; min-width: 0; font: inherit; font-size: 18px; padding: 14px 16px; border-radius: 14px; border: 2px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; }
+  input::placeholder { color: rgba(255,255,255,.6); }
+  input:focus { outline: none; border-color: var(--yes); }
+  form button { font-size: 18px; padding: 0 20px; border-radius: 14px; background: #fff; color: var(--bg2); opacity: 1 !important; border: 0; box-shadow: none !important; }
+  #cstatus { margin-top: 8px; font-size: 15px; min-height: 1.3em; color: rgba(255,255,255,.75); }
   #status { margin-top: 20px; font-size: 18px; min-height: 1.4em; color: rgba(255,255,255,.85); }
 </style>
 </head>
@@ -47,12 +53,17 @@
     <button id="no" data-choice="no"><span>No</span><span class="tick">&#10003;</span></button>
   </div>
   <p id="status" role="status" aria-live="polite">Tap to vote.</p>
+  <form id="comment" autocomplete="off">
+    <input id="text" maxlength="140" placeholder="Say something to the screen…" aria-label="Comment for the results screen">
+    <button type="submit" class="send">Send</button>
+  </form>
+  <p id="cstatus" role="status" aria-live="polite"></p>
 <script>
   const BASE = "{{BASE}}";
   const status = document.getElementById("status");
   function show(choice) {
     document.body.classList.toggle("voted", !!choice);
-    for (const b of document.querySelectorAll("button")) {
+    for (const b of document.querySelectorAll(".choices button")) {
       b.classList.toggle("chosen", b.dataset.choice === choice);
       b.setAttribute("aria-pressed", b.dataset.choice === choice);
     }
@@ -65,7 +76,17 @@
       if (!r.ok) throw new Error(r.status);
     } catch (e) { status.textContent = "Couldn’t send that, please tap again."; }
   }
-  for (const b of document.querySelectorAll("button")) b.addEventListener("click", () => vote(b.dataset.choice));
+  const form = document.getElementById("comment"), text = document.getElementById("text"), cstatus = document.getElementById("cstatus");
+  form.addEventListener("submit", async ev => {
+    ev.preventDefault();
+    if (!text.value.trim()) return;
+    try {
+      const r = await fetch(BASE + "/api/comment", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({text: text.value}), credentials: "same-origin"});
+      const d = await r.json();
+      if (r.ok) { text.value = ""; cstatus.textContent = "Sent to the screen."; } else cstatus.textContent = d.error || "Couldn’t send that.";
+    } catch (e) { cstatus.textContent = "Couldn’t send that, please try again."; }
+  });
+  for (const b of document.querySelectorAll(".choices button")) b.addEventListener("click", () => vote(b.dataset.choice));
   fetch(BASE + "/api/me", {credentials: "same-origin"}).then(r => r.json()).then(d => show(d.choice)).catch(() => {});
 </script>
 </body>

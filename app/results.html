@@ -45,6 +45,11 @@
   #chart { width: 100%; height: calc(17 * var(--u)); display: block; }
   #chart .axis { stroke: var(--faint); stroke-width: 1; }
   #chart text { fill: rgba(255,255,255,.6); font-size: 12px; font-family: var(--font); }
+  #comments { position: fixed; right: calc(4.5 * var(--u)); top: calc(3.5 * var(--u)); width: calc(30 * var(--u)); display: flex; flex-direction: column; gap: calc(1 * var(--u)); pointer-events: none; z-index: 5; }
+  .bubble { background: #fff; color: var(--bg2); font-size: calc(1.9 * var(--u)); font-weight: 600; line-height: 1.25; padding: calc(1.2 * var(--u)) calc(1.6 * var(--u)); border-radius: calc(1.4 * var(--u)) calc(1.4 * var(--u)) calc(.3 * var(--u)) calc(1.4 * var(--u)); box-shadow: 0 calc(1 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.35); border-left: calc(.5 * var(--u)) solid var(--yes); animation: pop .5s cubic-bezier(.2,1.4,.4,1) both; overflow-wrap: anywhere; }
+  .bubble.out { animation: fade .6s ease forwards; }
+  @keyframes pop { from { opacity: 0; transform: translateY(calc(-2 * var(--u))) scale(.85); } }
+  @keyframes fade { to { opacity: 0; transform: translateX(calc(4 * var(--u))); } }
 </style>
 </head>
 <body>
@@ -62,6 +67,7 @@
     <div id="qr"></div>
     <div class="url" id="url"></div>
   </aside>
+  <div id="comments" aria-live="polite"></div>
 <script src="{{BASE}}/qrcode.js"></script>
 <script>
   const BASE = "{{BASE}}";
@@ -90,6 +96,22 @@
       `<path d="${path(1)}" fill="none" stroke="#34C6C6" stroke-width="4" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>` +
       `<path d="${path(2)}" fill="none" stroke="#9A3BFF" stroke-width="4" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`;
   }
+  // Comments pop up as speech bubbles; at most 4 on screen, each stays 20 seconds.
+  let lastComment = null;
+  function showComments(list) {
+    if (lastComment === null) { lastComment = list.length ? list[list.length - 1].id : 0; list = list.slice(-2); }
+    else list = list.filter(c => c.id > lastComment);
+    const box = document.getElementById("comments");
+    for (const c of list) {
+      lastComment = Math.max(lastComment, c.id);
+      const el = document.createElement("div");
+      el.className = "bubble"; el.textContent = c.text;
+      if (c.id % 2) el.style.borderLeftColor = "#9A3BFF";
+      box.prepend(el);
+      setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 700); }, 20000);
+    }
+    while (box.children.length > 4) box.lastChild.remove();
+  }
   async function tick() {
     try {
       const d = await (await fetch(BASE + "/api/results", {cache: "no-store"})).json();
@@ -97,6 +119,7 @@
       setRow("yes", d.yes, total); setRow("no", d.no, total);
       document.getElementById("total").textContent = total + (total === 1 ? " vote" : " votes");
       drawChart(d.timeline, d.now);
+      showComments(d.comments || []);
     } catch (e) {}
     setTimeout(tick, 1000);
   }
