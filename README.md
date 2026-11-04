@@ -17,13 +17,13 @@ A small live audience poll, in the style of Mentimeter or Slido, written from sc
 | `POST /vote/api/vote` | `{"choice": "yes"}` or `{"choice": "no"}` |
 | `GET /vote/api/results` | totals and timeline |
 
-Run it locally with:
+Run it locally (at <http://localhost:8000/>) with:
 
 ```bash
-cd app && python3 -m wsgiref.simple_server 2>/dev/null || python3 -c "from wsgiref.simple_server import make_server; import vote; make_server('', 8000, vote.application).serve_forever()"
+cd app && python3 -c "from wsgiref.simple_server import make_server; import vote; make_server('', 8000, vote.application).serve_forever()"
 ```
 
-and test it with `pytest tests`.
+and test it with `uvx pytest tests`.
 
 ## Deploying
 
