@@ -3,7 +3,7 @@
   # Under /var/www the files get SELinux's httpd_sys_content_t label by default.
   # Changing vote.py updates its mtime, which makes mod_wsgi reload the daemon.
   ansible.builtin.copy:
-    src: ../../app/
+    src: "{{ playbook_dir }}/../app/"
     dest: /var/www/builds/vote/app/
     mode: u=rw,go=r,a+X
   become: true
