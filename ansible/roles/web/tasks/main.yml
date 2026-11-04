@@ -1,0 +1,34 @@
+---
+- name: Copy the app to the VM
+  # Under /var/www the files get SELinux's httpd_sys_content_t label by default.
+  # Changing vote.py updates its mtime, which makes mod_wsgi reload the daemon.
+  ansible.builtin.copy:
+    src: ../../app/
+    dest: /var/www/builds/vote/app/
+    mode: u=rw,go=r,a+X
+  become: true
+
+- name: Make a folder Apache can write the votes database into
+  # Kept outside the build folder so deploys never touch the votes.
+  ansible.builtin.file:
+    path: /var/www/vote-data
+    state: directory
+    owner: apache
+    group: apache
+    mode: '0750'
+    setype: httpd_sys_rw_content_t
+  become: true
+
+- name: Remember that SELinux label across relabels
+  community.general.sefcontext:
+    target: '/var/www/vote-data(/.*)?'
+    setype: httpd_sys_rw_content_t
+  become: true
+  ignore_errors: true  # needs policycoreutils-python-utils; the label above is enough to run
+
+- name: Set up the apache config
+  become: true
+  ansible.builtin.copy:
+    src: vote.conf
+    dest: /etc/httpd/conf.d/vote.conf
+  notify: Restart httpd

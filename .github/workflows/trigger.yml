@@ -1,0 +1,23 @@
+name: Trigger Infrastructure deploy workflow
+on:
+  workflow_run:
+    workflows: ["Test"]
+    branches: [main]
+    types:
+      - completed
+
+jobs:
+  trigger-deploy:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.INFRA }} # Fine-grained PAT with Actions read/write on jh-infrastructure
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'jamespjh',
+              repo: 'jh-infrastructure',
+              workflow_id: 'deploy_vote.yml',
+              ref: 'main'
+            })

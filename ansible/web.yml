@@ -1,0 +1,4 @@
+- name: Set up the live poll on the web VM
+  hosts: label_harvesterhci_io_vmName_web
+  roles:
+    - web
