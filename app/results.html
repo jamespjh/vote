@@ -16,7 +16,7 @@
   body {
     font-family: var(--font); color: var(--ink);
     background: radial-gradient(90% 120% at 15% 0%, #522880 0%, var(--bg) 40%, var(--bg2) 100%);
-    display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto 1fr auto;
+    display: grid; grid-template-columns: 1fr calc(28 * var(--u)); grid-template-rows: auto auto 1fr auto;
     gap: calc(2.2 * var(--u)) calc(4 * var(--u)); padding: calc(3.5 * var(--u)) calc(4.5 * var(--u));
   }
   header { grid-column: 1 / -1; display: flex; align-items: baseline; gap: calc(2 * var(--u)); }
@@ -25,7 +25,7 @@
   .live::before { content: ""; width: .7em; height: .7em; border-radius: 50%; background: var(--yes); animation: pulse 1.6s infinite; }
   @keyframes pulse { 50% { opacity: .25; } }
   h1 { grid-column: 1 / -1; font-size: calc(6.2 * var(--u)); line-height: 1; font-weight: 700; letter-spacing: -0.025em; margin-top: calc(-1 * var(--u)); }
-  .bars { grid-column: 1 / -1; display: flex; flex-direction: column; justify-content: center; gap: calc(3 * var(--u)); min-height: 0; }
+  .bars { grid-column: 1; display: flex; flex-direction: column; justify-content: center; gap: calc(3 * var(--u)); min-height: 0; }
   .row { display: grid; grid-template-columns: calc(11 * var(--u)) 1fr calc(14 * var(--u)); align-items: center; gap: calc(2 * var(--u)); }
   .label { font-size: calc(5 * var(--u)); font-weight: 700; }
   .track { height: calc(10 * var(--u)); background: var(--faint); border-radius: calc(1.2 * var(--u)); overflow: hidden; }
@@ -45,7 +45,7 @@
   #chart { width: 100%; height: calc(17 * var(--u)); display: block; }
   #chart .axis { stroke: var(--faint); stroke-width: 1; }
   #chart text { fill: rgba(255,255,255,.6); font-size: 12px; font-family: var(--font); }
-  #comments { position: fixed; right: calc(4.5 * var(--u)); top: calc(3.5 * var(--u)); width: calc(30 * var(--u)); display: flex; flex-direction: column; gap: calc(1 * var(--u)); pointer-events: none; z-index: 5; }
+  #comments { grid-row: 3; grid-column: 2; width: calc(28 * var(--u)); justify-content: center; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: calc(1 * var(--u)); pointer-events: none; z-index: 5; }
   .bubble { background: #fff; color: var(--bg2); font-size: calc(1.9 * var(--u)); font-weight: 600; line-height: 1.25; padding: calc(1.2 * var(--u)) calc(1.6 * var(--u)); border-radius: calc(1.4 * var(--u)) calc(1.4 * var(--u)) calc(.3 * var(--u)) calc(1.4 * var(--u)); box-shadow: 0 calc(1 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.35); border-left: calc(.5 * var(--u)) solid var(--yes); animation: pop .5s cubic-bezier(.2,1.4,.4,1) both; overflow-wrap: anywhere; }
   .bubble.out { animation: fade .6s ease forwards; }
   @keyframes pop { from { opacity: 0; transform: translateY(calc(-2 * var(--u))) scale(.85); } }
