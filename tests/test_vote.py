@@ -92,3 +92,13 @@ def test_comments(db):
     assert call(db, "POST", "/api/comment", {"text": "x" * 500}, b)[0] == "200 OK"
     texts = [c["text"] for c in totals(db)["comments"]]
     assert texts == ["Great talk", "x" * vote.COMMENT_LENGTH]
+
+
+def test_all_comments_exported_without_voter_ids(db):
+    conn = vote.db(db)
+    for i in range(vote.COMMENTS_SHOWN + 5):
+        vote.comment(conn, f"v{i:030d}", f"comment {i}", now=1000 + i)
+    assert len(totals(db)["comments"]) == vote.COMMENTS_SHOWN
+    got = json.loads(call(db, "GET", "/api/comments")[2])["comments"]
+    assert [c["text"] for c in got] == [f"comment {i}" for i in range(vote.COMMENTS_SHOWN + 5)]
+    assert set(got[0]) == {"id", "ts", "text"}

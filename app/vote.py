@@ -10,6 +10,7 @@ Routes are relative to wherever the app is mounted (``/vote`` in production):
     POST /api/vote      {"choice": "yes"|"no"}
     POST /api/comment   {"text": "..."} shown on the results screen
     GET  /api/results   running totals and timeline
+    GET  /api/comments  every comment, oldest first (text and time only)
 """
 
 import json
@@ -95,6 +96,12 @@ def comment(conn, voter, text, now=None):
     return text
 
 
+def all_comments(conn):
+    with _lock:
+        rows = conn.execute("SELECT id, ts, text FROM comments ORDER BY id").fetchall()
+    return [{"id": i, "ts": round(ts, 1), "text": t} for i, ts, t in rows]
+
+
 def current(conn, voter):
     with _lock:
         row = conn.execute("SELECT choice FROM votes WHERE voter=?", (voter,)).fetchone()
@@ -169,6 +176,8 @@ def application(environ, start_response):
         return respond("200 OK", _read("qrcode.js"), "application/javascript")
     if method == "GET" and path == "/api/me":
         return as_json({"choice": current(conn, voter)})
+    if method == "GET" and path == "/api/comments":
+        return as_json({"comments": all_comments(conn)})
     if method == "GET" and path == "/api/results":
         return as_json(results(conn))
     if method == "POST" and path == "/api/vote":

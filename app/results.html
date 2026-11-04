@@ -17,7 +17,7 @@
     font-family: var(--font); color: var(--ink);
     background: radial-gradient(90% 120% at 15% 0%, #522880 0%, var(--bg) 40%, var(--bg2) 100%);
     display: grid; grid-template-columns: 1fr calc(28 * var(--u)); grid-template-rows: auto auto 1fr auto;
-    gap: calc(2.2 * var(--u)) calc(4 * var(--u)); padding: calc(3.5 * var(--u)) calc(4.5 * var(--u));
+    gap: calc(2.2 * var(--u)) calc(4 * var(--u)); padding: calc(2.5 * var(--u)) calc(4 * var(--u));
   }
   header { grid-column: 1 / -1; display: flex; align-items: baseline; gap: calc(2 * var(--u)); }
   .brand { font-weight: 700; letter-spacing: .3em; font-size: calc(1.6 * var(--u)); color: var(--mid); }
@@ -25,27 +25,28 @@
   .live::before { content: ""; width: .7em; height: .7em; border-radius: 50%; background: var(--yes); animation: pulse 1.6s infinite; }
   @keyframes pulse { 50% { opacity: .25; } }
   h1 { grid-column: 1 / -1; font-size: calc(6.2 * var(--u)); line-height: 1; font-weight: 700; letter-spacing: -0.025em; margin-top: calc(-1 * var(--u)); }
-  .bars { grid-column: 1; display: flex; flex-direction: column; justify-content: center; gap: calc(3 * var(--u)); min-height: 0; }
+  .bars { grid-column: 1; display: flex; flex-direction: column; justify-content: center; gap: calc(2.5 * var(--u)); min-height: 0; }
   .row { display: grid; grid-template-columns: calc(11 * var(--u)) 1fr calc(14 * var(--u)); align-items: center; gap: calc(2 * var(--u)); }
   .label { font-size: calc(5 * var(--u)); font-weight: 700; }
-  .track { height: calc(10 * var(--u)); background: var(--faint); border-radius: calc(1.2 * var(--u)); overflow: hidden; }
+  .track { height: calc(7.5 * var(--u)); background: var(--faint); border-radius: calc(1.2 * var(--u)); overflow: hidden; }
   .fill { height: 100%; width: 0; border-radius: inherit; transition: width .8s cubic-bezier(.2,.9,.2,1); }
   #yes .fill { background: linear-gradient(90deg, #1F8A8A, var(--yes)); box-shadow: 0 0 calc(4 * var(--u)) rgba(52,198,198,.45); }
   #no .fill { background: linear-gradient(90deg, #6C29B2, var(--no)); box-shadow: 0 0 calc(4 * var(--u)) rgba(154,59,255,.45); }
   .count { text-align: right; font-variant-numeric: tabular-nums; }
-  .count b { display: block; font-size: calc(7 * var(--u)); line-height: 1; }
+  .count b { display: block; font-size: calc(6 * var(--u)); line-height: 1; }
   .count span { font-size: calc(2 * var(--u)); color: rgba(255,255,255,.75); }
-  aside { grid-row: 4 / 5; grid-column: 2; display: flex; flex-direction: column; align-items: center; gap: calc(1 * var(--u)); align-self: end; }
+  aside { display: flex; flex-direction: column; align-items: center; gap: calc(1 * var(--u)); align-self: end; }
   #qr { background: #fff; padding: calc(1 * var(--u)); border-radius: calc(1 * var(--u)); line-height: 0; }
-  #qr svg, #qr img { width: calc(19 * var(--u)); height: calc(19 * var(--u)); }
+  #qr svg, #qr img { width: calc(16 * var(--u)); height: calc(16 * var(--u)); }
   .url { font-size: calc(1.7 * var(--u)); font-weight: 700; text-align: center; }
   .url small { display: block; font-weight: 400; color: rgba(255,255,255,.7); font-size: .85em; }
   .timeline { grid-row: 4 / 5; grid-column: 1; align-self: end; }
   .timeline h2 { font-size: calc(1.4 * var(--u)); letter-spacing: .2em; color: rgba(255,255,255,.7); font-weight: 700; margin-bottom: calc(.8 * var(--u)); }
-  #chart { width: 100%; height: calc(17 * var(--u)); display: block; }
+  #chart { width: 100%; height: calc(12 * var(--u)); display: block; }
   #chart .axis { stroke: var(--faint); stroke-width: 1; }
   #chart text { fill: rgba(255,255,255,.6); font-size: 12px; font-family: var(--font); }
-  #comments { grid-row: 3; grid-column: 2; width: calc(28 * var(--u)); justify-content: center; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: calc(1 * var(--u)); pointer-events: none; z-index: 5; }
+  .side { grid-row: 3 / 5; grid-column: 2; display: flex; flex-direction: column; gap: calc(1.5 * var(--u)); min-height: 0; }
+  #comments { flex: 1; justify-content: flex-start; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: calc(1 * var(--u)); pointer-events: none; z-index: 5; }
   .bubble { background: #fff; color: var(--bg2); font-size: calc(1.9 * var(--u)); font-weight: 600; line-height: 1.25; padding: calc(1.2 * var(--u)) calc(1.6 * var(--u)); border-radius: calc(1.4 * var(--u)) calc(1.4 * var(--u)) calc(.3 * var(--u)) calc(1.4 * var(--u)); box-shadow: 0 calc(1 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.35); border-left: calc(.5 * var(--u)) solid var(--yes); animation: pop .5s cubic-bezier(.2,1.4,.4,1) both; overflow-wrap: anywhere; }
   .bubble.out { animation: fade .6s ease forwards; }
   @keyframes pop { from { opacity: 0; transform: translateY(calc(-2 * var(--u))) scale(.85); } }
@@ -63,11 +64,13 @@
     <h2>OVER TIME</h2>
     <svg id="chart" preserveAspectRatio="none" viewBox="0 0 1000 170" aria-label="Running totals over time"></svg>
   </section>
-  <aside>
-    <div id="qr"></div>
-    <div class="url" id="url"></div>
-  </aside>
-  <div id="comments" aria-live="polite"></div>
+  <div class="side">
+    <div id="comments" aria-live="polite"></div>
+    <aside>
+      <div id="qr"></div>
+      <div class="url" id="url"></div>
+    </aside>
+  </div>
 <script src="{{BASE}}/qrcode.js"></script>
 <script>
   const BASE = "{{BASE}}";
@@ -110,7 +113,7 @@
       box.prepend(el);
       setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 700); }, 20000);
     }
-    while (box.children.length > 4) box.lastChild.remove();
+    while (box.children.length > 4 || (box.children.length > 1 && box.scrollHeight > box.clientHeight)) box.lastChild.remove();
   }
   async function tick() {
     try {

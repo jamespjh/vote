@@ -16,7 +16,8 @@ A small live audience poll, in the style of Mentimeter or Slido, written from sc
 | `GET /vote/api/me` | this phone's current answer |
 | `POST /vote/api/vote` | `{"choice": "yes"}` or `{"choice": "no"}` |
 | `POST /vote/api/comment` | `{"text": "..."}`: a comment that pops up on the results screen |
-| `GET /vote/api/results` | totals and timeline |
+| `GET /vote/api/results` | totals, timeline and the latest 30 comments |
+| `GET /vote/api/comments` | every comment, oldest first: text and time, no voter IDs |
 
 Run it locally (at <http://localhost:8000/>) with:
 
@@ -49,5 +50,5 @@ These were made without asking, because the poll was built while James was on st
 - **The QR code** is drawn in the browser by [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) 1.4.4 (MIT), kept in `app/qrcode.js` so the projector doesn't depend on a CDN. It encodes the address the results page was loaded from, so it also works on the `condenser` address.
 - **Iframes**: no `X-Frame-Options` or `frame-ancestors` header is sent, so the results page can be embedded in the slides from any origin.
 - **Brand**: colours are from the UCL palette used on [www.ucl.ac.uk/isd](https://www.ucl.ac.uk/isd): dark purple `#361A54` and `#2C0442` backgrounds, bright purple `#9A3BFF` for No, cyan `#34C6C6` for Yes, mid purple `#BA82FF` for accents. The type is UCL Sans if it's installed on the projector machine, then Helvetica Neue and Arial. UCL Sans isn't bundled, because the font files are UCL's, not ours to republish.
-- **Sizing**: the results page sizes everything from the smaller of the width and height, so it fills a 16:9 iframe of any size without scrolling.
-- **Comments** are free text from the voting page, up to 140 characters, at most one every 10 seconds per phone. The results screen pops each new one up as a speech bubble at the top right, keeps up to four on screen and lets each fade after 20 seconds; when the screen first loads it shows the latest two. Comments are shown as text (never as HTML). There is no moderation queue: a delay before showing them would kill the fun of a live room, and the rate limit plus a quick reset are the safety valve.
+- **Sizing**: the results page sizes everything from the smaller of the width and height, and is laid out to fit a 16:9 frame exactly, so it fills a 16:9 iframe of any size without scrolling. In reveal.js slides, give the iframe `max-width: none; max-height: none`, because reveal shrinks iframes to 95% of their container by default.
+- **Comments** are free text from the voting page, up to 140 characters, at most one every 10 seconds per phone. The results screen pops each new one up as a speech bubble at the top right, keeps as many as fit (at most four) on screen and lets each fade after 20 seconds; when the screen first loads it shows the latest two. Comments are shown as text (never as HTML). There is no moderation queue: a delay before showing them would kill the fun of a live room, and the rate limit plus a quick reset are the safety valve.
