@@ -19,7 +19,7 @@
     display: flex; flex-direction: column; padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
     -webkit-tap-highlight-color: transparent;
   }
-  .brand { font-weight: 700; letter-spacing: .3em; font-size: 14px; color: var(--mid); }
+  .brand { height: 30px; width: auto; display: block; align-self: flex-start; }
   h1 { font-size: clamp(32px, 10vw, 56px); line-height: 1.05; font-weight: 700; margin: 16px 0 28px; letter-spacing: -0.02em; }
   .choices { display: grid; gap: 16px; flex: 1; grid-template-rows: 1fr 1fr; max-height: 440px; }
   button {
@@ -46,7 +46,7 @@
 </style>
 </head>
 <body>
-  <div class="brand">UCL</div>
+  <img class="brand" src="{{BASE}}/ucl-logo.svg" alt="UCL">
   <h1>{{QUESTION}}</h1>
   <div class="choices">
     <button id="yes" data-choice="yes"><span>Yes</span><span class="tick">&#10003;</span></button>

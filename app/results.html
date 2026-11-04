@@ -19,8 +19,8 @@
     display: grid; grid-template-columns: 1fr calc(28 * var(--u)); grid-template-rows: auto auto 1fr auto;
     gap: calc(2.2 * var(--u)) calc(4 * var(--u)); padding: calc(2.5 * var(--u)) calc(4 * var(--u));
   }
-  header { grid-column: 1 / -1; display: flex; align-items: baseline; gap: calc(2 * var(--u)); }
-  .brand { font-weight: 700; letter-spacing: .3em; font-size: calc(1.6 * var(--u)); color: var(--mid); }
+  header { grid-column: 1 / -1; display: flex; align-items: center; gap: calc(2 * var(--u)); }
+  .brand { height: calc(3.2 * var(--u)); width: auto; display: block; align-self: center; }
   .live { display: inline-flex; align-items: center; gap: .5em; font-size: calc(1.4 * var(--u)); font-weight: 700; letter-spacing: .2em; color: var(--yes); }
   .live::before { content: ""; width: .7em; height: .7em; border-radius: 50%; background: var(--yes); animation: pulse 1.6s infinite; }
   @keyframes pulse { 50% { opacity: .25; } }
@@ -54,7 +54,7 @@
 </style>
 </head>
 <body>
-  <header><span class="brand">UCL</span><span class="live">LIVE</span><span class="live" style="color:#fff;margin-left:auto" id="total">0 votes</span></header>
+  <header><img class="brand" src="{{BASE}}/ucl-logo.svg" alt="UCL"><span class="live">LIVE</span><span class="live" style="color:#fff;margin-left:auto" id="total">0 votes</span></header>
   <h1>{{QUESTION}}</h1>
   <section class="bars" aria-live="polite">
     <div class="row" id="yes"><div class="label">Yes</div><div class="track"><div class="fill"></div></div><div class="count"><b>0</b><span>0%</span></div></div>

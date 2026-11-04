@@ -6,6 +6,7 @@ Routes are relative to wherever the app is mounted (``/vote`` in production):
     GET  /              voting page for phones
     GET  /results       projector page: live bars, timeline, QR code
     GET  /qrcode.js     vendored QR code generator
+    GET  /ucl-logo.svg  UCL's own logo for dark backgrounds
     GET  /api/me        this phone's current answer
     POST /api/vote      {"choice": "yes"|"no"}
     POST /api/comment   {"text": "..."} shown on the results screen
@@ -174,6 +175,8 @@ def application(environ, start_response):
         return respond("200 OK", page, "text/html; charset=utf-8")
     if method == "GET" and path == "/qrcode.js":
         return respond("200 OK", _read("qrcode.js"), "application/javascript")
+    if method == "GET" and path == "/ucl-logo.svg":
+        return respond("200 OK", _read("ucl-logo.svg"), "image/svg+xml")
     if method == "GET" and path == "/api/me":
         return as_json({"choice": current(conn, voter)})
     if method == "GET" and path == "/api/comments":

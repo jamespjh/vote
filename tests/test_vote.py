@@ -42,7 +42,7 @@ def totals(db):
 
 
 def test_pages_render(db):
-    for path in ("/", "/results", "/qrcode.js"):
+    for path in ("/", "/results", "/qrcode.js", "/ucl-logo.svg"):
         status, headers, body = call(db, "GET", path)
         assert status == "200 OK"
         assert "X-Frame-Options" not in headers
